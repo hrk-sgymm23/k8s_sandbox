@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-processing-job-with-queue
+spec:
+  template:
+    spec:
+      containers:
+        - name: batch-processor
+          image: 321699386584.dkr.ecr.ap-northeast-1.amazonaws.com/batch-processing-repo:latest
+          env:
+            - name: SQS_QUEUE_URL
+              value: "https://sqs.ap-northeast-1.amazonaws.com/321699386584/eks-batch-job-queue"
+      restartPolicy: Never
+      serviceAccountName: ecr-sa
+      imagePullSecrets:
+        - name: regcred

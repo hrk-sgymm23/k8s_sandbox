@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-batch-processing-job
+spec:
+  template:
+    spec:
+      serviceAccountName: ecr-sa   
+      containers:
+      - name: batch-processor
+        image: 321699386584.dkr.ecr.ap-northeast-1.amazonaws.com/batch-processing-repo:latest
+      restartPolicy: Never

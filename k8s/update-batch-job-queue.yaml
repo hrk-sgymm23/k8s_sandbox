@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: new-batch-processing-job-queue
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: batch-processor
+        image: 321699386584.dkr.ecr.ap-northeast-1.amazonaws.com/batch-processing-repo:latest
+        env:
+        - name: SQS_QUEUE_URL
+          value: "https://sqs.ap-northeast-1.amazonaws.com/321699386584/eks-batch-job-queue"
+        volumeMounts:
+        - name: efs-volume
+          mountPath: /efs
+      volumes:
+      - name: efs-volume
+        persistentVolumeClaim:
+          claimName: efs-claim
+      restartPolicy: OnFailure
+      serviceAccountName: ecr-sa
+      imagePullSecrets:
+        - name: regcred
