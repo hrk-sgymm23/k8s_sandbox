@@ -9,10 +9,10 @@ metadata:
 
 managedNodeGroups:
 - name: managed-ng
-  minSize: 3
-  maxSize: 6
-  desiredCapacity: 3
-  instanceType: c5a.xlarge
+  minSize: 1
+  maxSize: 1
+  desiredCapacity: 1
+  instanceType: t3.small
   privateNetworking: true
   tags:
     k8s.io/cluster-autoscaler/enabled: 'true'
@@ -30,16 +30,11 @@ iam:
     wellKnownPolicies:
       autoScaler: true
   - metadata:
-      name: efs-csi-controller-sa
-      namespace: kube-system
-    wellKnownPolicies:
-      efsCSIController: true
-  - metadata:
-      name: ecr-sa
+      name: eks-exec-sa
       namespace: default
     attachPolicyARNs:
       - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
-
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
 cloudWatch:
  clusterLogging:
    enableTypes: ["*"]

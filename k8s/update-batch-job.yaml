@@ -1,20 +1,19 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
   name: new-batch-job
   namespace: default
 spec:
-  template:
+  schedule: "35 14 * * *"
+  jobTemplate:
     spec:
-      serviceAccountName: ecr-sa
-      containers:
-      - name: batch-processor
-        image: 321699386584.dkr.ecr.ap-northeast-1.amazonaws.com/batch-processing-repo:latest
-        volumeMounts:
-        - name: efs-volume
-          mountPath: /efs
-      volumes:
-      - name: efs-volume
-        persistentVolumeClaim:
-          claimName: efs-claim
-      restartPolicy: OnFailure
+      template:
+        spec:
+          serviceAccountName: eks-exec-sa
+          containers:
+          - name: batch-processor
+            image: 321699386584.dkr.ecr.ap-northeast-1.amazonaws.com/batch-processing-repo:latest
+            env:
+              - name: AWS_REGION
+                value: ap-northeast-1
+          restartPolicy: OnFailure
