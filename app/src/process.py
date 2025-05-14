@@ -1,31 +1,33 @@
-import boto3
-
-s3 = boto3.client('s3')
-bucket_name = 'eks-test-bucket-20250508'
-input_key = 'input/data.csv'
-output_key = 'output/result.json'
-
-# 1. S3 からファイルをダウンロード
-print('##############')
-print('bucket_name', bucket_name)
-print('input_key', input_key)
-print('output_key', output_key)
-print('##############')
-
-s3.download_file(bucket_name, input_key, '/tmp/data.csv')
-
-# 2. ここでバッチ処理（例: 行数を数えるだけ）
-with open('/tmp/data.csv', 'r') as f:
-    line_count = sum(1 for _ in f)
-
-result = {'line_count': line_count}
-
-# 3. 結果をファイルに書き出し
+import os
 import json
-with open('/tmp/result.json', 'w') as f:
-    json.dump(result, f)
+from modules.storage_fetcher import S3StorageFetcher, LocalStorageFetcher
 
-# 4. S3 にアップロード
-s3.upload_file('/tmp/result.json', bucket_name, output_key)
+def run_batch_job(storage):
+    input_key = 'input.csv'
+    output_key = 'output.json'
+    local_input_path = '/tmp/input.csv'
+    local_output_path = '/tmp/output.json'
 
-print("Batch job completed and result uploaded to S3.")
+    # 1. download
+    storage.download(input_key, local_input_path)
+
+    # 2. process
+    with open(local_input_path, 'r') as f:
+        line_count = sum(1 for _ in f)
+    result = {'line_count': line_count}
+
+    # 3. output
+    with open(local_output_path, 'w') as f:
+        json.dump(result, f)
+
+    storage.upload(local_output_path, output_key)
+    print("Job completed.")
+
+if __name__ == '__main__':
+    env = os.getenv("ENV", "local")
+    if env == "prd":
+        fetcher = S3StorageFetcher(bucket_name="eks-test-bucket-20250508")
+    else:
+        fetcher = LocalStorageFetcher(base_dir="./")
+
+    run_batch_job(fetcher)

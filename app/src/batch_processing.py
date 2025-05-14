@@ -1,6 +1,7 @@
 import csv
 import time
 import random
+import modules.storage_fetcher
 
 def read_csv(file_path):
    with open(file_path, 'r') as f:

@@ -1,0 +1,11 @@
+version: '3'
+services:
+  eks-batch:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.local
+    tty: true
+    volumes:
+      - ./app:/batch
+    environment:
+      - ENV=local
